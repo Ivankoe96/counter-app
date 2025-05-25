@@ -2,6 +2,13 @@
 
 ![Counter App Screenshot-Dark Mode](public/Site-screenshot-darkmode.png)
 ![Counter App Screenshot-Light Mode](public/Site-screenshot-lightmode.png)
+
+<p align="center">
+  <a href="https://ivankoe-counter-app.vercel.app/">
+    <img src="https://img.shields.io/badge/Live%20Demo-Vercel-000000?style=for-the-badge&logo=vercel" alt="Live Demo on Vercel" />
+  </a>
+</p>
+
 A simple yet elegant counter application built with React, Vite, and Tailwind CSS. This app demonstrates basic state management, component modularization, custom hooks, and dark mode functionality.
 
 ## Features
