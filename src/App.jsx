@@ -1,14 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react'; 
 import { motion, AnimatePresence } from 'framer-motion';
+import { useDarkMode } from './hooks/useDarkMode';
 
 function App() {
   const [count, setCount] = useState(0);
-  const [dark, setDark] = useState(false);
-
-  useEffect(() => {
-    const html = document.documentElement;
-    html.classList.toggle('dark', dark);
-  }, [dark]);
+  const [dark, setDark] = useDarkMode();
 
   return (
     <motion.div
@@ -23,7 +19,7 @@ function App() {
       >
         {dark ? 'Light Mode' : 'Dark Mode'}
       </button>
-      
+
       <motion.div
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
