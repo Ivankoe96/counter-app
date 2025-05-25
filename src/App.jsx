@@ -1,32 +1,18 @@
-// src/App.jsx
-import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDarkMode } from './hooks/useDarkMode';
+import { useCounter } from './hooks/useCounter';
 import CounterControls from './components/CounterControls';
 
 function App() {
-  const [count, setCount] = useState(0);
+  const [count, increment, decrement, reset] = useCounter(0); // <--- USE THE CUSTOM HOOK
+
   const [isDarkMode, toggleDarkMode] = useDarkMode();
 
-  const handleIncrement = (value) => {
-    setCount(prevCount => prevCount + value);
-  };
-
-  const handleDecrement = (value) => {
-    setCount(prevCount => Math.max(0, prevCount - value));
-  };
-
-  const handleReset = () => {
-    setCount(0);
-  };
-
-  // Framer Motion variants for count animation
   const countVariants = {
     initial: { opacity: 0, y: -20 },
     animate: { opacity: 1, y: 0 },
     exit: { opacity: 0, y: 20 },
   };
-
 
   return (
     <motion.div
@@ -40,7 +26,7 @@ function App() {
       <motion.button
         onClick={toggleDarkMode}
         className="absolute top-4 right-4 z-10 px-3 py-1 bg-black text-white rounded"
-        whileTap={{ scale: 0.95 }} 
+        whileTap={{ scale: 0.95 }}
       >
         {isDarkMode ? 'Light Mode' : 'Dark Mode'}
       </motion.button>
@@ -72,11 +58,12 @@ function App() {
             </motion.div>
           </AnimatePresence>
         </div>
+
         <CounterControls
           count={count}
-          onIncrement={handleIncrement}
-          onDecrement={handleDecrement}
-          onReset={handleReset}
+          onIncrement={increment} // <--- Use functions from the hook
+          onDecrement={decrement} // <--- Use functions from the hook
+          onReset={reset}         // <--- Use functions from the hook
         />
       </motion.div>
     </motion.div>
