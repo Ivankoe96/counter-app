@@ -5,10 +5,6 @@ function App() {
   const [count, setCount] = useState(0);
   const [dark, setDark] = useState(false);
 
-  const handleClick = (updateFn) => {
-    updateFn();
-  };
-
   useEffect(() => {
     const html = document.documentElement;
     html.classList.toggle('dark', dark);
@@ -52,14 +48,14 @@ function App() {
         <div className="flex flex-wrap justify-center gap-3">
           <motion.button
             whileTap={{ scale: 0.9 }}
-            onClick={() => handleClick(() => setCount(count + 1))}
+            onClick={() => setCount(prevCount => prevCount + 1)}
             className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-4 py-2 rounded-2xl shadow transition-colors"
           >
             +1
           </motion.button>
           <motion.button
             whileTap={{ scale: 0.9 }}
-            onClick={() => handleClick(() => setCount(Math.max(count - 1, 0)))}
+            onClick={() => setCount(prevCount => Math.max(prevCount - 1, 0))}
             disabled={count === 0}
             className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-4 py-2 rounded-2xl shadow disabled:opacity-50 transition-colors"
           >
@@ -67,21 +63,21 @@ function App() {
           </motion.button>
           <motion.button
             whileTap={{ scale: 0.9 }}
-            onClick={() => handleClick(() => setCount(0))}
+            onClick={() => setCount(0)}
             className="bg-gray-600 hover:bg-gray-700 dark:bg-gray-500 dark:hover:bg-gray-600 text-white px-4 py-2 rounded-2xl shadow transition-colors"
           >
             Reset
           </motion.button>
           <motion.button
             whileTap={{ scale: 0.9 }}
-            onClick={() => handleClick(() => setCount(count + 5))}
+            onClick={() => setCount(prevCount => prevCount + 5)}
             className="bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white px-4 py-2 rounded-2xl shadow transition-colors"
           >
             +5
           </motion.button>
           <motion.button
             whileTap={{ scale: 0.9 }}
-            onClick={() => handleClick(() => setCount(Math.max(count - 5, 0)))}
+            onClick={() => setCount(prevCount => Math.max(prevCount - 5, 0))}
             disabled={count < 5}
             className="bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white px-4 py-2 rounded-2xl shadow disabled:opacity-50 transition-colors"
           >
