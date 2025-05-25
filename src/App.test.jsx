@@ -1,34 +1,51 @@
 // src/App.test.jsx
 import { render, screen, fireEvent } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import App from './App'; // Import the component you want to test
+import App from './App';
 
-// Mock Framer Motion's AnimatePresence to avoid complex animation issues in tests
-// For simpler tests, you can often just mock the component entirely
-vi.mock('framer-motion', async (importOriginal) => {
-  const actual = await importOriginal();
-  return {
-    ...actual,
-    motion: {
-      div: (props) => <div {...props} />, // Render a div instead of motion.div
-      button: (props) => <button {...props} />, // Render a button instead of motion.button
-    },
-    AnimatePresence: ({ children }) => children, // Just render children without animation logic
-  };
-});
+// Define a helper to filter out Framer Motion specific props
+const filterMotionProps = ({
+  animate,
+  initial,
+  transition,
+  exit,
+  variants,
+  whileTap,
+  whileHover,
+  drag,
+  dragConstraints,
+  dragElastic,
+  dragMomentum,
+  dragTransition,
+  onDragStart,
+  onDragEnd,
+  onAnimationStart,
+  onAnimationComplete,
+  ...rest
+}) => rest;
+
+vi.mock('framer-motion', () => ({
+  motion: {
+    div: (props) => <div {...filterMotionProps(props)}>{props.children}</div>,
+    button: (props) => <button {...filterMotionProps(props)}>{props.children}</button>,
+    span: (props) => <span {...filterMotionProps(props)}>{props.children}</span>,
+  },
+  AnimatePresence: ({ children }) => {
+    if (Array.isArray(children)) {
+      return children[children.length - 1];
+    }
+    return children;
+  },
+}));
 
 describe('Counter App', () => {
-  // Clear localStorage before each test to ensure a clean state
   beforeEach(() => {
     localStorage.clear();
-    // Reset document.documentElement.classList as it's manipulated by the dark mode hook
     document.documentElement.className = '';
   });
 
   it('renders the initial count of 0', () => {
     render(<App />);
-    // screen.getByText finds an element with the given text
-    // We use a regular expression for more flexibility in matching
     expect(screen.getByText(/Count: 0/i)).toBeInTheDocument();
   });
 
@@ -36,10 +53,10 @@ describe('Counter App', () => {
     render(<App />);
     const plusOneButton = screen.getByRole('button', { name: '+1' });
 
-    fireEvent.click(plusOneButton); // Simulate a click
+    fireEvent.click(plusOneButton);
     expect(screen.getByText(/Count: 1/i)).toBeInTheDocument();
 
-    fireEvent.click(plusOneButton); // Click again
+    fireEvent.click(plusOneButton);
     expect(screen.getByText(/Count: 2/i)).toBeInTheDocument();
   });
 
@@ -48,10 +65,10 @@ describe('Counter App', () => {
     const plusOneButton = screen.getByRole('button', { name: '+1' });
     const minusOneButton = screen.getByRole('button', { name: '-1' });
 
-    fireEvent.click(plusOneButton); // Increment to 1 first
+    fireEvent.click(plusOneButton);
     expect(screen.getByText(/Count: 1/i)).toBeInTheDocument();
 
-    fireEvent.click(minusOneButton); // Decrement
+    fireEvent.click(minusOneButton);
     expect(screen.getByText(/Count: 0/i)).toBeInTheDocument();
   });
 
@@ -59,9 +76,9 @@ describe('Counter App', () => {
     render(<App />);
     const minusOneButton = screen.getByRole('button', { name: '-1' });
 
-    fireEvent.click(minusOneButton); // Should stay at 0
+    fireEvent.click(minusOneButton);
     expect(screen.getByText(/Count: 0/i)).toBeInTheDocument();
-    expect(minusOneButton).toBeDisabled(); // Also check if button is disabled
+    expect(minusOneButton).toBeDisabled();
   });
 
   it('resets the count to 0 when Reset button is clicked', () => {
@@ -69,11 +86,11 @@ describe('Counter App', () => {
     const plusOneButton = screen.getByRole('button', { name: '+1' });
     const resetButton = screen.getByRole('button', { name: 'Reset' });
 
-    fireEvent.click(plusOneButton); // Count = 1
-    fireEvent.click(plusOneButton); // Count = 2
+    fireEvent.click(plusOneButton);
+    fireEvent.click(plusOneButton);
     expect(screen.getByText(/Count: 2/i)).toBeInTheDocument();
 
-    fireEvent.click(resetButton); // Reset
+    fireEvent.click(resetButton);
     expect(screen.getByText(/Count: 0/i)).toBeInTheDocument();
   });
 
@@ -93,25 +110,77 @@ describe('Counter App', () => {
     const plusFiveButton = screen.getByRole('button', { name: '+5' });
     const minusFiveButton = screen.getByRole('button', { name: '-5' });
 
-    fireEvent.click(plusFiveButton); // Count = 5
+    fireEvent.click(plusFiveButton); // Count becomes 5
     expect(screen.getByText(/Count: 5/i)).toBeInTheDocument();
 
-    fireEvent.click(minusFiveButton); // Count = 0
+    fireEvent.click(minusFiveButton); // Count becomes 0
     expect(screen.getByText(/Count: 0/i)).toBeInTheDocument();
   });
 
-  it('does not decrement below 0 when -5 button is clicked', () => {
+  // NEW OR MODIFIED TEST CASES FOR -5 BUTTON BEHAVIOR
+  it('disables the -5 button when count is less than 5', () => {
     render(<App />);
     const minusFiveButton = screen.getByRole('button', { name: '-5' });
-    expect(minusFiveButton).toBeDisabled(); // Should be disabled initially
 
-    fireEvent.click(minusFiveButton); // Should remain 0
-    expect(screen.getByText(/Count: 0/i)).toBeInTheDocument();
+    // Initially, count is 0, so button should be disabled
+    expect(minusFiveButton).toBeDisabled();
 
+    // Increment to 1, button should still be disabled
+    fireEvent.click(screen.getByRole('button', { name: '+1' }));
+    expect(screen.getByText(/Count: 1/i)).toBeInTheDocument();
+    expect(minusFiveButton).toBeDisabled();
+
+    // Increment to 4, button should still be disabled
+    fireEvent.click(screen.getByRole('button', { name: '+1' }));
+    fireEvent.click(screen.getByRole('button', { name: '+1' }));
+    fireEvent.click(screen.getByRole('button', { name: '+1' })); // Count is now 4
+    expect(screen.getByText(/Count: 4/i)).toBeInTheDocument();
+    expect(minusFiveButton).toBeDisabled();
+  });
+
+  it('enables the -5 button when count is 5 or more', () => {
+    render(<App />);
+    const minusFiveButton = screen.getByRole('button', { name: '-5' });
+    const plusFiveButton = screen.getByRole('button', { name: '+5' });
+
+    // Initially disabled
+    expect(minusFiveButton).toBeDisabled();
+
+    // Click +5, count becomes 5, button should be enabled
+    fireEvent.click(plusFiveButton);
+    expect(screen.getByText(/Count: 5/i)).toBeInTheDocument();
+    expect(minusFiveButton).not.toBeDisabled();
+  });
+
+  it('decrements to 0 when -5 button is clicked from count 5 or more', () => {
+    render(<App />);
+    const minusFiveButton = screen.getByRole('button', { name: '-5' });
+    const plusFiveButton = screen.getByRole('button', { name: '+5' });
     const plusOneButton = screen.getByRole('button', { name: '+1' });
-    fireEvent.click(plusOneButton); // Count = 1
-    fireEvent.click(plusOneButton); // Count = 2
-    fireEvent.click(minusFiveButton); // Should remain 0
+
+
+    // Set count to 7 (e.g., +5 then +1 then +1)
+    fireEvent.click(plusFiveButton); // Count 5
+    fireEvent.click(plusOneButton);  // Count 6
+    fireEvent.click(plusOneButton);  // Count 7
+    expect(screen.getByText(/Count: 7/i)).toBeInTheDocument();
+    expect(minusFiveButton).not.toBeDisabled(); // Ensure it's enabled
+
+    // Click -5, count should become 2
+    fireEvent.click(minusFiveButton);
+    expect(screen.getByText(/Count: 2/i)).toBeInTheDocument();
+    expect(minusFiveButton).toBeDisabled(); // Should be disabled again (2 < 5)
+
+    // Now set count to 5 and test decrementing to 0 exactly
+    fireEvent.click(plusFiveButton); // Count 7 -> 12
+    fireEvent.click(screen.getByRole('button', { name: 'Reset' })); // Count 0
+    fireEvent.click(plusFiveButton); // Count 5
+    expect(screen.getByText(/Count: 5/i)).toBeInTheDocument();
+    expect(minusFiveButton).not.toBeDisabled();
+
+    // Click -5, count should become 0
+    fireEvent.click(minusFiveButton);
     expect(screen.getByText(/Count: 0/i)).toBeInTheDocument();
+    expect(minusFiveButton).toBeDisabled(); // Should be disabled
   });
 });
