@@ -37,7 +37,7 @@ Make sure you have Node.js and npm (or yarn) installed.
 
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/Ivankoe96/counter-app.git](https://github.com/Ivankoe96/counter-app.git)
+    git clone https://github.com/Ivankoe96/counter-app.git
     ```
 
 2.  **Navigate into the project directory:**
