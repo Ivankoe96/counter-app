@@ -22,7 +22,7 @@ function CounterControls({ count, onIncrement, onDecrement, onReset }) {
       <motion.button
         onClick={() => onDecrement(5)}
         disabled={count < 5}
-        className="order-2 sm:order-2 px-4 py-2 rounded-2xl shadow disabled:opacity-50 transition-colors
+        className="order-3 sm:order-4 px-4 py-2 rounded-2xl shadow disabled:opacity-50 transition-colors
                    bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 text-white"
         whileTap={buttonVariants.whileTap}
       >
@@ -32,7 +32,7 @@ function CounterControls({ count, onIncrement, onDecrement, onReset }) {
       {/* Increment Buttons (+1, +5) */}
       <motion.button
         onClick={() => onIncrement(1)}
-        className="order-3 sm:order-4 px-4 py-2 rounded-2xl shadow transition-colors
+        className="order-2 sm:order-2 px-4 py-2 rounded-2xl shadow transition-colors
                    bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white"
         whileTap={buttonVariants.whileTap}
       >
